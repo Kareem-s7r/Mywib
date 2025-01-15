@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>معرض الصور</title>
+  <style>
+    body {
+      background-color: black;
+      color: #00ff00;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+    .image-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .image-box {
+      margin: 10px;
+      border: 2px solid #00ff00;
+      padding: 10px;
+      text-align: center;
+    }
+    img {
+      width: 150px;
+      height: auto;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    .message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: #00ff00;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <h1>معرض الصور</h1>
+  <div id="passwordPrompt">
+    <p>يرجى إدخال كلمة السر:</p>
+    <input type="password" id="password" placeholder="أدخل كلمة السر">
+    <button id="enter">دخول</button>
+  </div>
+  <div id="gallery" class="image-container" style="display: none;"></div>
+  <div id="message" class="message"></div>
+
+  <script>
+    const passwordPrompt = document.getElementById('passwordPrompt');
+    const passwordInput = document.getElementById('password');
+    const enterButton = document.getElementById('enter');
+    const galleryContainer = document.getElementById('gallery');
+    const messageBox = document.getElementById('message');
+
+    const correctPassword = btoa('2020'); // كلمة السر مشفرة
+
+    // عرض رسالة
+    function showMessage(text, isError = false) {
+      messageBox.textContent = text;
+      messageBox.style.backgroundColor = isError ? "#800000" : "#333";
+      messageBox.style.color = isError ? "#ff4d4d" : "#00ff00";
+      messageBox.style.display = "block";
+      setTimeout(() => {
+        messageBox.style.display = "none";
+      }, 3000);
+    }
+
+    enterButton.addEventListener('click', () => {
+      const enteredPassword = passwordInput.value.trim();
+
+      if (btoa(enteredPassword) === correctPassword) {
+        passwordPrompt.style.display = 'none';
+        galleryContainer.style.display = 'flex';
+
+        const gallery = JSON.parse(localStorage.getItem('gallery')) || [];
+        if (gallery.length === 0) {
+          showMessage("لا توجد صور محفوظة", true);
+          return;
+        }
+
+        gallery.forEach(({ studentId, images }) => {
+          const box = document.createElement('div');
+          box.className = 'image-box';
+
+          box.innerHTML = `<p>رقم الطالب: ${studentId}</p>`;
+          images.forEach((image) => {
+            const img = document.createElement('img');
+            img.src = image;
+            box.appendChild(img);
+          });
+
+          galleryContainer.appendChild(box);
+        });
+
+        showMessage("تم تحميل الصور بنجاح");
+      } else {
+        showMessage("كلمة السر غير صحيحة!", true);
+      }
+    });
+  </script>
+</body>
+</html>
